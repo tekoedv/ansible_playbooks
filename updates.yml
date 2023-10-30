@@ -1,0 +1,56 @@
+---
+- name: Check for and install available updates using apt
+  hosts: all
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Check for upgrades
+      command: apt list --upgradable
+      register: apt_list
+      changed_when: false
+
+    - name: Count number of available updates
+      set_fact:
+        update_count: "{{ apt_list.stdout_lines | length - 1 }}"
+
+    - name: Display number of updates
+      debug:
+        msg: "Anzahl der verfügbaren Updates: {{ update_count }}"
+
+    - name: Prompt to install updates
+      pause:
+        prompt: "Möchten Sie diese Updates installieren? (drücken Sie Enter, um fortzufahren oder strg+c, um abzubrechen)"
+      when: update_count | int > 0
+
+    - name: Install updates without progress indication
+      apt:
+        upgrade: 'yes'
+      when: update_count | int > 0
+
+    - name: Cleanup unused packages and dependencies
+      apt:
+        autoremove: yes
+        autoclean: yes
+
+    - name: Check if a reboot is required
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: Add hosts requiring reboot to a list
+      set_fact:
+        hosts_requiring_reboot: "{{ ansible_play_hosts_all | default([]) + [inventory_hostname] }}"
+      when: reboot_required.stat.exists
+
+  post_tasks:
+    - name: Display hosts requiring reboot
+      run_once: true
+      delegate_to: localhost
+      debug:
+        var: hosts_requiring_reboot
+      when: hosts_requiring_reboot is defined
