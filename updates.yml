@@ -22,12 +22,7 @@
       debug:
         msg: "Anzahl der verfügbaren Updates: {{ update_count }}"
 
-    - name: Prompt to install updates
-      pause:
-        prompt: "Möchten Sie diese Updates installieren? (drücken Sie Enter, um fortzufahren oder strg+c, um abzubrechen)"
-      when: update_count | int > 0
-
-    - name: Install updates without progress indication
+     - name: Install updates without progress indication
       apt:
         upgrade: 'yes'
       when: update_count | int > 0
