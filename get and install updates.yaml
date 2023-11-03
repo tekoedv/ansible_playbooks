@@ -9,6 +9,16 @@
         update_cache: yes
         cache_valid_time: 3600
 
+    - name: Find upgradable packages
+      command: apt list --upgradable
+      register: upgradable
+      changed_when: false
+
+    - name: Show the number of upgradable packages
+      debug:
+        msg: "{{ upgradable.stdout_lines | length - 1 }} updates are available for {{ inventory_hostname }}."
+      when: upgradable.stdout_lines | length > 1
+
     - name: Upgrade all packages to the latest version
       ansible.builtin.apt:
         upgrade: dist
@@ -19,27 +29,12 @@
         path: /var/run/reboot-required
       register: reboot_required
 
-    - name: Check for upgradable packages
-      command: apt list --upgradable
-      register: upgradable
-      changed_when: false
-
-    - name: Show the number of upgradable packages
+    - name: Show message if reboot is needed
       debug:
-        msg: "{{ upgradable.stdout_lines | length }} updates are available for {{ inventory_hostname }}."
-      when: upgradable.stdout_lines | length > 0
+        msg: "Reboot is required for {{ inventory_hostname }}."
+      when: reboot_required.stat.exists
 
   handlers:
     - name: Reboot the server
       ansible.builtin.reboot:
       listen: "reboot_handler"
-
-  tasks:
-    - name: Trigger reboot handler if required
-      ansible.builtin.meta: flush_handlers
-      when: reboot_required.stat.exists
-
-    - name: Show message if reboot is needed
-      debug:
-        msg: "Reboot is required for {{ inventory_hostname }}."
-      when: reboot_required.stat.exists
