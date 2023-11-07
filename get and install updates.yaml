@@ -31,7 +31,7 @@
 
     - name: Debug message if reboot is needed
       debug:
-        msg: "Reboot is required for {{ inventory_hostname }}."
+        msg: "ddd"
       when: reboot_required.stat.exists
 
     - name: Write hostname to file if reboot is required
