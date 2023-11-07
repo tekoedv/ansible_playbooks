@@ -1,0 +1,11 @@
+---
+- name: Erstelle eine Datei auf dem Ansible-Host
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Erstelle eine leere Datei namens test.txt im /tmp Verzeichnis
+      ansible.builtin.file:
+        path: /tmp/test.txt
+        state: touch
+        mode: '0644'
