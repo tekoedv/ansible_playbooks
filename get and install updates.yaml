@@ -37,8 +37,8 @@
     - name: Write hostname to file if reboot is required
       lineinfile:
         path: /tmp/reboot_required.txt
-        state: touch
-        mode: '0644'
         line: "{{ inventory_hostname }}"
         create: yes
+        state: present
+        mode: '0644'
       when: reboot_required.stat.exists
