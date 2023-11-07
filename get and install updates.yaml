@@ -36,9 +36,8 @@
 
     - name: Write hostname to file if reboot is required
       lineinfile:
-        path: /tmp/reboot_required.txt
-        line: "{{ inventory_hostname.split('.')[0] }}"
+        path: "/tmp/reboot_required.txt"
+        line: "{{ inventory_hostname }}"
         create: yes
       delegate_to: localhost
-      run_once: true
       when: reboot_required.stat.exists
