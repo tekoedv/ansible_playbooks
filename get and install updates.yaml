@@ -33,12 +33,3 @@
       debug:
         msg: "Reboot is required for {{ inventory_hostname }}."
       when: reboot_required.stat.exists
-
-    - name: Write hostname to file if reboot is required
-      lineinfile:
-        path: /etc/semaphore/reboot_required.txt
-        line: "{{ inventory_hostname }}"
-        create: yes
-        state: present
-        mode: '0644'
-      when: reboot_required.stat.exists
