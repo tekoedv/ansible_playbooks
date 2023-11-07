@@ -36,7 +36,7 @@
 
     - name: Write hostname to file if reboot is required
       lineinfile:
-        path: ./reboot_required.txt
+        path: /etc/semaphore/reboot_required.txt
         line: "{{ inventory_hostname.split('.')[0] }}"
         create: yes
       delegate_to: localhost
